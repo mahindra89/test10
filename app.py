@@ -16,11 +16,113 @@ st.markdown("""
             padding-right: 1rem;
             max-width: 100%;
         }
+        .example-card {
+            background-color: #f0f2f6;
+            border-radius: 5px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+        .example-title {
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
     </style>
 """, unsafe_allow_html=True)
 
 # --- Title ---
 st.title("CPU Scheduling Simulator")
+
+# --- Example Data ---
+PREDEFINED_EXAMPLES = [
+    {
+        "name": "example1",
+        "description": "Multiple intensive calculations with different priorities",
+        "algorithm": "STRF Scheduling with Quantum Time",
+        "num_jobs": 4,
+        "num_cpus": 2,
+        "chunk_unit": 1.0,
+        "quantum_time": 2.0,
+        "jobs": [
+            {"arrival": 0.0, "burst": 5.0},
+            {"arrival": 1.0, "burst": 2.0},
+            {"arrival": 2.0, "burst": 4.0},
+            {"arrival": 3.0, "burst": 1.0}
+        ]
+    },
+    {
+        "name": "example1",
+        "description": "Mixed prioritization of web requests",
+        "algorithm": "STRF Scheduling Without Quantum Time",
+        "num_jobs": 5,
+        "num_cpus": 2,
+        "chunk_unit": 0.5,
+        "jobs": [
+            {"arrival": 0.0, "burst": 3.0},
+            {"arrival": 0.5, "burst": 1.5},
+            {"arrival": 1.0, "burst": 4.0},
+            {"arrival": 2.0, "burst": 2.0},
+            {"arrival": 3.0, "burst": 1.0}
+        ]
+    },
+    {
+        "name": "example1",
+        "description": "Multiple users running time-sharing operations",
+        "algorithm": "Round Robin with Quantum Time",
+        "num_jobs": 4,
+        "num_cpus": 2,
+        "chunk_unit": 1.0,
+        "quantum_time": 2.0,
+        "jobs": [
+            {"arrival": 0.0, "burst": 4.0},
+            {"arrival": 1.0, "burst": 5.0},
+            {"arrival": 2.0, "burst": 2.0},
+            {"arrival": 2.0, "burst": 3.0}
+        ]
+    },
+    {
+        "name": "example1",
+        "description": "Background jobs with fair scheduling",
+        "algorithm": "Round Robin without Quantum Time",
+        "num_jobs": 3,
+        "num_cpus": 2,
+        "chunk_unit": 1.0,
+        "jobs": [
+            {"arrival": 0.0, "burst": 6.0},
+            {"arrival": 0.0, "burst": 3.0},
+            {"arrival": 2.0, "burst": 4.0}
+        ]
+    },
+    {
+        "name": "example2",
+        "description": "Multiple concurrent connections with time-slicing",
+        "algorithm": "Round Robin with Quantum Time",
+        "num_jobs": 5,
+        "num_cpus": 3,
+        "chunk_unit": 0.5,
+        "quantum_time": 1.0,
+        "jobs": [
+            {"arrival": 0.0, "burst": 3.0},
+            {"arrival": 0.0, "burst": 4.0},
+            {"arrival": 0.5, "burst": 2.5},
+            {"arrival": 1.0, "burst": 3.5},
+            {"arrival": 2.0, "burst": 1.0}
+        ]
+    },
+    {
+        "name": "example2",
+        "description": "Fair distribution of computational tasks",
+        "algorithm": "Round Robin without Quantum Time",
+        "num_jobs": 4,
+        "num_cpus": 2,
+        "chunk_unit": 0.5,
+        "jobs": [
+            {"arrival": 0.0, "burst": 4.5},
+            {"arrival": 1.0, "burst": 3.0},
+            {"arrival": 1.5, "burst": 2.5},
+            {"arrival": 2.0, "burst": 5.0}
+        ]
+    }
+]
 
 # --- JobScheduler Class for Round Robin ---
 class JobScheduler:
@@ -404,20 +506,77 @@ algo = st.sidebar.radio("Choose CPU Scheduling Algorithm", (
     "Round Robin with Quantum Time",
     "Round Robin without Quantum Time"
 ))
+
+# Examples section in the sidebar
+st.sidebar.markdown("---")
+st.sidebar.title("Examples")
+st.sidebar.markdown("Click to load a predefined example:")
+
+# Filter examples based on the selected algorithm
+examples_for_algo = [example for example in PREDEFINED_EXAMPLES if example["algorithm"] == algo]
+
+# Create buttons for each example that matches the selected algorithm
+for example in examples_for_algo:
+    if st.sidebar.button(f"{example['name']}", key=f"example_btn_{example['name']}"):
+        # Set session state based on algorithm type
+        if algo == "STRF Scheduling with Quantum Time":
+            st.session_state.strf_wq_jobs = example["num_jobs"]
+            st.session_state.strf_wq_cpus = example["num_cpus"]
+            st.session_state.strf_wq_chunk = example["chunk_unit"]
+            st.session_state.strf_wq_quantum = example["quantum_time"]
+            st.session_state.strf_wq_example_jobs = example["jobs"]
+        
+        elif algo == "STRF Scheduling Without Quantum Time":
+            st.session_state.strf_woq_jobs = example["num_jobs"]
+            st.session_state.strf_woq_cpus = example["num_cpus"]
+            st.session_state.strf_woq_chunk = example["chunk_unit"]
+            st.session_state.strf_woq_example_jobs = example["jobs"]
+        
+        elif algo == "Round Robin with Quantum Time":
+            st.session_state.rr_wq_jobs = example["num_jobs"]
+            st.session_state.rr_wq_cpus = example["num_cpus"]
+            st.session_state.rr_wq_chunk = example["chunk_unit"]
+            st.session_state.rr_wq_quantum = example["quantum_time"]
+            st.session_state.rr_wq_example_jobs = example["jobs"]
+        
+        elif algo == "Round Robin without Quantum Time":
+            st.session_state.rr_woq_jobs = example["num_jobs"]
+            st.session_state.rr_woq_cpus = example["num_cpus"]
+            st.session_state.rr_woq_chunk = example["chunk_unit"]
+            st.session_state.rr_woq_example_jobs = example["jobs"]
+        
+        # Force a rerun to update the UI with the new values
+        st.rerun()
+
+if not examples_for_algo:
+    st.sidebar.info("No examples available for this algorithm.")
+
+st.sidebar.markdown("---")
+
 st.markdown("---")
 
 # --- STRF With Quantum Time ---
 def run_strf_with_quantum():
     st.subheader("STRF Scheduling with Quantum Time")
+    
+    # Input parameters
     col1, col2, col3, col4 = st.columns(4)
     with col1:
-        num_jobs = st.number_input("Number of Jobs", 1, 10, 4, key="strf_wq_jobs")
+        num_jobs = st.number_input("Number of Jobs", 1, 10, 
+                                  st.session_state.get("strf_wq_jobs", 4), 
+                                  key="strf_wq_jobs")
     with col2:
-        num_cpus = st.number_input("Number of CPUs", 1, 4, 2, key="strf_wq_cpus")
+        num_cpus = st.number_input("Number of CPUs", 1, 4, 
+                                  st.session_state.get("strf_wq_cpus", 2), 
+                                  key="strf_wq_cpus")
     with col3:
-        chunk_unit = st.number_input("Chunk Unit (e.g., 0.5, 1.0)", value=1.0, key="strf_wq_chunk")
+        chunk_unit = st.number_input("Chunk Unit (e.g., 0.5, 1.0)", 
+                                    value=st.session_state.get("strf_wq_chunk", 1.0), 
+                                    key="strf_wq_chunk")
     with col4:
-        quantum_time = st.number_input("Quantum Time", value=2.0, key="strf_wq_quantum")
+        quantum_time = st.number_input("Quantum Time", 
+                                      value=st.session_state.get("strf_wq_quantum", 2.0), 
+                                      key="strf_wq_quantum")
 
     if st.button("Randomize Job Times", key="strf_wq_rand"):
         st.session_state.strf_random_jobs = [
@@ -427,7 +586,12 @@ def run_strf_with_quantum():
 
     processes = []
     for i in range(num_jobs):
-        default = st.session_state.get("strf_random_jobs", [{}]*num_jobs)[i]
+        # Check if we have example data, otherwise use random data or defaults
+        if "strf_wq_example_jobs" in st.session_state and i < len(st.session_state.strf_wq_example_jobs):
+            default = st.session_state.strf_wq_example_jobs[i]
+        else:
+            default = st.session_state.get("strf_random_jobs", [{}]*num_jobs)[i]
+        
         c1, c2 = st.columns(2)
         with c1:
             arrival = st.number_input(f"Arrival Time for J{i+1}", value=default.get('arrival', 0.0), key=f"strf_wq_arr_{i}")
@@ -441,13 +605,21 @@ def run_strf_with_quantum():
 # --- STRF Without Quantum Time ---
 def run_strf_without_quantum():
     st.subheader("STRF Scheduling Without Quantum Time")
+    
+    # Input parameters
     col1, col2, col3 = st.columns(3)
     with col1:
-        num_jobs = st.number_input("Number of Jobs", 1, 10, 4, key="strf_woq_jobs")
+        num_jobs = st.number_input("Number of Jobs", 1, 10, 
+                                  st.session_state.get("strf_woq_jobs", 4), 
+                                  key="strf_woq_jobs")
     with col2:
-        num_cpus = st.number_input("Number of CPUs", 1, 4, 2, key="strf_woq_cpus")
+        num_cpus = st.number_input("Number of CPUs", 1, 4, 
+                                  st.session_state.get("strf_woq_cpus", 2), 
+                                  key="strf_woq_cpus")
     with col3:
-        chunk_unit = st.number_input("Chunk Unit (e.g., 0.5, 1.0)", value=1.0, key="strf_woq_chunk")
+        chunk_unit = st.number_input("Chunk Unit (e.g., 0.5, 1.0)", 
+                                    value=st.session_state.get("strf_woq_chunk", 1.0), 
+                                    key="strf_woq_chunk")
 
     if st.button("Randomize Job Times", key="strf_woq_rand"):
         st.session_state.strf_special_jobs = [
@@ -457,7 +629,12 @@ def run_strf_without_quantum():
 
     processes = []
     for i in range(num_jobs):
-        default = st.session_state.get("strf_special_jobs", [{}]*num_jobs)[i]
+        # Check if we have example data, otherwise use random data or defaults
+        if "strf_woq_example_jobs" in st.session_state and i < len(st.session_state.strf_woq_example_jobs):
+            default = st.session_state.strf_woq_example_jobs[i]
+        else:
+            default = st.session_state.get("strf_special_jobs", [{}]*num_jobs)[i]
+            
         c1, c2 = st.columns(2)
         with c1:
             arrival = st.number_input(f"Arrival Time for J{i+1}", value=default.get('arrival', 0.0), key=f"strf_woq_arr_{i}")
@@ -471,15 +648,25 @@ def run_strf_without_quantum():
 # --- Round Robin With Quantum Time ---
 def run_rr_with_quantum():
     st.subheader("Round Robin Scheduling with Quantum Time")
+    
+    # Input parameters
     col1, col2, col3, col4 = st.columns(4)
     with col1:
-        num_jobs = st.number_input("Number of Jobs", 1, 10, 4, key="rr_wq_jobs")
+        num_jobs = st.number_input("Number of Jobs", 1, 10, 
+                                  st.session_state.get("rr_wq_jobs", 4), 
+                                  key="rr_wq_jobs")
     with col2:
-        num_cpus = st.number_input("Number of CPUs", 1, 4, 2, key="rr_wq_cpus")
+        num_cpus = st.number_input("Number of CPUs", 1, 4, 
+                                  st.session_state.get("rr_wq_cpus", 2), 
+                                  key="rr_wq_cpus")
     with col3:
-        chunk_unit = st.number_input("Chunk Unit (e.g., 0.5, 1.0)", value=1.0, key="rr_wq_chunk")
+        chunk_unit = st.number_input("Chunk Unit (e.g., 0.5, 1.0)", 
+                                    value=st.session_state.get("rr_wq_chunk", 1.0), 
+                                    key="rr_wq_chunk")
     with col4:
-        quantum_time = st.number_input("Quantum Time", value=2.0, key="rr_wq_quantum")
+        quantum_time = st.number_input("Quantum Time", 
+                                      value=st.session_state.get("rr_wq_quantum", 2.0), 
+                                      key="rr_wq_quantum")
 
     if st.button("Randomize Job Times", key="rr_wq_rand"):
         st.session_state.rr_random_jobs = [
@@ -492,7 +679,12 @@ def run_rr_with_quantum():
     
     # Add jobs to scheduler
     for i in range(num_jobs):
-        default = st.session_state.get("rr_random_jobs", [{}]*num_jobs)[i]
+        # Check if we have example data, otherwise use random data or defaults
+        if "rr_wq_example_jobs" in st.session_state and i < len(st.session_state.rr_wq_example_jobs):
+            default = st.session_state.rr_wq_example_jobs[i]
+        else:
+            default = st.session_state.get("rr_random_jobs", [{}]*num_jobs)[i]
+            
         c1, c2 = st.columns(2)
         with c1:
             arrival = st.number_input(f"Arrival Time for J{i+1}", value=default.get('arrival', 0.0), key=f"rr_wq_arr_{i}")
@@ -521,13 +713,21 @@ def run_rr_with_quantum():
 # --- Round Robin Without Quantum Time ---
 def run_rr_without_quantum():
     st.subheader("Round Robin Scheduling without Quantum Time")
+    
+    # Input parameters
     col1, col2, col3 = st.columns(3)
     with col1:
-        num_jobs = st.number_input("Number of Jobs", 1, 10, 4, key="rr_woq_jobs")
+        num_jobs = st.number_input("Number of Jobs", 1, 10, 
+                                  st.session_state.get("rr_woq_jobs", 4), 
+                                  key="rr_woq_jobs")
     with col2:
-        num_cpus = st.number_input("Number of CPUs", 1, 4, 2, key="rr_woq_cpus")
+        num_cpus = st.number_input("Number of CPUs", 1, 4, 
+                                  st.session_state.get("rr_woq_cpus", 2), 
+                                  key="rr_woq_cpus")
     with col3:
-        chunk_unit = st.number_input("Chunk Unit (e.g., 0.5, 1.0)", value=1.0, key="rr_woq_chunk")
+        chunk_unit = st.number_input("Chunk Unit (e.g., 0.5, 1.0)", 
+                                    value=st.session_state.get("rr_woq_chunk", 1.0), 
+                                    key="rr_woq_chunk")
 
     if st.button("Randomize Job Times", key="rr_woq_rand"):
         st.session_state.rr_special_jobs = [
@@ -540,7 +740,12 @@ def run_rr_without_quantum():
     
     # Add jobs to scheduler
     for i in range(num_jobs):
-        default = st.session_state.get("rr_special_jobs", [{}]*num_jobs)[i]
+        # Check if we have example data, otherwise use random data or defaults
+        if "rr_woq_example_jobs" in st.session_state and i < len(st.session_state.rr_woq_example_jobs):
+            default = st.session_state.rr_woq_example_jobs[i]
+        else:
+            default = st.session_state.get("rr_special_jobs", [{}]*num_jobs)[i]
+            
         c1, c2 = st.columns(2)
         with c1:
             arrival = st.number_input(f"Arrival Time for J{i+1}", value=default.get('arrival', 0.0), key=f"rr_woq_arr_{i}")
