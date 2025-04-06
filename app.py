@@ -36,7 +36,6 @@ st.title("CPU Scheduling Simulator")
 PREDEFINED_EXAMPLES = [
     {
         "name": "example1",
-        "description": "Multiple intensive calculations with different priorities",
         "algorithm": "STRF Scheduling with Quantum Time",
         "num_jobs": 4,
         "num_cpus": 2,
@@ -51,7 +50,6 @@ PREDEFINED_EXAMPLES = [
     },
     {
         "name": "example1",
-        "description": "Mixed prioritization of web requests",
         "algorithm": "STRF Scheduling Without Quantum Time",
         "num_jobs": 5,
         "num_cpus": 2,
@@ -66,7 +64,6 @@ PREDEFINED_EXAMPLES = [
     },
     {
         "name": "example1",
-        "description": "Multiple users running time-sharing operations",
         "algorithm": "Round Robin with Quantum Time",
         "num_jobs": 4,
         "num_cpus": 2,
@@ -81,7 +78,6 @@ PREDEFINED_EXAMPLES = [
     },
     {
         "name": "example1",
-        "description": "Background jobs with fair scheduling",
         "algorithm": "Round Robin without Quantum Time",
         "num_jobs": 3,
         "num_cpus": 2,
@@ -94,7 +90,6 @@ PREDEFINED_EXAMPLES = [
     },
     {
         "name": "example2",
-        "description": "Multiple concurrent connections with time-slicing",
         "algorithm": "Round Robin with Quantum Time",
         "num_jobs": 5,
         "num_cpus": 3,
@@ -110,7 +105,6 @@ PREDEFINED_EXAMPLES = [
     },
     {
         "name": "example2",
-        "description": "Fair distribution of computational tasks",
         "algorithm": "Round Robin without Quantum Time",
         "num_jobs": 4,
         "num_cpus": 2,
@@ -516,8 +510,8 @@ st.sidebar.markdown("Click to load a predefined example:")
 examples_for_algo = [example for example in PREDEFINED_EXAMPLES if example["algorithm"] == algo]
 
 # Create buttons for each example that matches the selected algorithm
-for example in examples_for_algo:
-    if st.sidebar.button(f"{example['name']}", key=f"example_btn_{example['name']}"):
+for i, example in enumerate(examples_for_algo):
+    if st.sidebar.button(f"{example['name']} #{i+1}", key=f"example_btn_{example['name']}_{i}"):
         # Set session state based on algorithm type
         if algo == "STRF Scheduling with Quantum Time":
             st.session_state.strf_wq_jobs = example["num_jobs"]
